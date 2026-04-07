@@ -98,6 +98,16 @@ export const useNavigationStore = defineStore('navigation', () => {
 
   const currentEntry = computed(() => entries.value[storyIndex.value] ?? null)
 
+  // Boundary flash message
+  const boundary = ref<'oldest' | 'newest' | null>(null)
+  let boundaryTimer: ReturnType<typeof setTimeout> | null = null
+
+  function triggerBoundary(type: 'oldest' | 'newest') {
+    boundary.value = type
+    if (boundaryTimer) clearTimeout(boundaryTimer)
+    boundaryTimer = setTimeout(() => { boundary.value = null }, 2500)
+  }
+
   return {
     currentYear,
     storyIndex,
@@ -106,8 +116,10 @@ export const useNavigationStore = defineStore('navigation', () => {
     isTransitioning,
     availableYears,
     currentEntry,
+    boundary,
     loadAvailableYears,
     goToYear,
     goToStory,
+    triggerBoundary,
   }
 })

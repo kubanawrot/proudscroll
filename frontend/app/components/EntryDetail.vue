@@ -21,12 +21,12 @@ const formattedYear = computed(() => {
 })
 
 const categoryColors: Record<string, string> = {
-  science: 'badge--science',
-  medicine: 'badge--medicine',
-  art: 'badge--art',
-  environment: 'badge--environment',
-  humanitarian: 'badge--humanitarian',
-  curiosity: 'badge--curiosity',
+  science: 'text-[#7EC8C8] border-[#7EC8C8]',
+  medicine: 'text-[#B8D4A8] border-[#B8D4A8]',
+  art: 'text-amber border-amber',
+  environment: 'text-[#8DC87E] border-[#8DC87E]',
+  humanitarian: 'text-ember border-ember',
+  curiosity: 'text-warm-gray border-warm-gray',
 }
 
 const categoryLabel: Record<string, string> = {
@@ -53,41 +53,53 @@ function onKeydown(e: KeyboardEvent) {
 <template>
   <Teleport to="body">
     <Transition name="detail">
-      <div v-if="open && entry" class="detail-overlay" @click.self="onScrimClick">
-        <div class="detail-panel" role="dialog" aria-modal="true">
+      <div
+        v-if="open && entry"
+        class="fixed inset-0 z-[100] bg-ink/60 backdrop-blur-[4px] flex items-end justify-end md:items-stretch"
+        @click.self="onScrimClick"
+      >
+        <div
+          class="detail-panel relative w-full md:w-[420px] max-h-[80dvh] md:max-h-dvh bg-ink border-t border-cream/[0.08] md:border-t-0 md:border-l overflow-y-auto overscroll-contain"
+          role="dialog"
+          aria-modal="true"
+        >
           <!-- Header image strip -->
-          <div v-if="entry.image_url" class="detail-hero">
-            <img :src="entry.image_url" :alt="entry.title" loading="lazy" />
-            <div class="detail-hero-scrim" />
+          <div v-if="entry.image_url" class="relative h-44 md:h-56 overflow-hidden">
+            <img :src="entry.image_url" :alt="entry.title" loading="lazy" class="w-full h-full object-cover" />
+            <div class="absolute inset-0 bg-gradient-to-b from-transparent from-[40%] to-ink" />
           </div>
 
           <!-- Close button -->
-          <button class="detail-close" aria-label="Close" @click="emit('close')">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <button
+            class="absolute top-3 right-3 md:top-4 md:right-4 z-10 flex items-center justify-center w-8 h-8 bg-ink/70 border border-cream/15 rounded-full text-warm-gray cursor-pointer transition-[background-color,color] duration-200 hover:bg-cream/10 hover:text-cream"
+            aria-label="Close"
+            @click="emit('close')"
+          >
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
           </button>
 
-          <div class="detail-body">
+          <div class="p-5 pb-10 md:p-8 md:pb-12">
             <!-- Meta -->
-            <div class="detail-meta">
-              <span class="detail-year">{{ formattedYear }}</span>
+            <div class="flex items-center gap-3 mb-4">
+              <span class="font-sans text-[0.8rem] font-medium tracking-[0.15em] uppercase text-amber">{{ formattedYear }}</span>
               <span
                 v-if="entry.category"
-                class="detail-badge"
+                class="font-sans text-[0.7rem] tracking-[0.08em] uppercase px-2.5 py-0.5 rounded-full border opacity-70"
                 :class="categoryColors[entry.category]"
               >{{ categoryLabel[entry.category] ?? entry.category }}</span>
             </div>
 
-            <h2 class="detail-title">{{ entry.title }}</h2>
-            <p v-if="entry.subtitle" class="detail-subtitle">{{ entry.subtitle }}</p>
+            <h2 class="font-serif text-2xl md:text-3xl font-normal text-cream leading-[1.15] mb-3">{{ entry.title }}</h2>
+            <p v-if="entry.subtitle" class="font-sans text-base font-light text-warm-gray leading-relaxed">{{ entry.subtitle }}</p>
 
-            <div class="detail-divider" />
+            <div class="h-px bg-cream/[0.08] my-6" />
 
             <!-- Full body -->
-            <div class="detail-text">
+            <div class="font-sans text-[0.9375rem] font-light text-[#E8E2D9] leading-[1.75]">
               <p v-if="entry.body">{{ entry.body }}</p>
-              <p v-else class="detail-placeholder">Full story coming soon.</p>
+              <p v-else class="text-warm-gray italic">Full story coming soon.</p>
             </div>
           </div>
         </div>
@@ -97,163 +109,6 @@ function onKeydown(e: KeyboardEvent) {
 </template>
 
 <style scoped>
-.detail-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  background: rgba(10, 8, 6, 0.6);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: flex-end;
-  justify-content: flex-end;
-}
-
-/* Desktop: side drawer */
-@media (min-width: 768px) {
-  .detail-overlay {
-    align-items: stretch;
-  }
-}
-
-.detail-panel {
-  position: relative;
-  width: 100%;
-  max-height: 80dvh;
-  background: #0F0D0B;
-  border-top: 1px solid rgba(245, 240, 232, 0.08);
-  overflow-y: auto;
-  overscroll-behavior: contain;
-}
-
-@media (min-width: 768px) {
-  .detail-panel {
-    width: 420px;
-    max-height: 100dvh;
-    border-top: none;
-    border-left: 1px solid rgba(245, 240, 232, 0.08);
-  }
-}
-
-.detail-hero {
-  position: relative;
-  height: 220px;
-  overflow: hidden;
-}
-
-.detail-hero img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.detail-hero-scrim {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to bottom, transparent 40%, #0F0D0B 100%);
-}
-
-.detail-close {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  background: rgba(15, 13, 11, 0.7);
-  border: 1px solid rgba(245, 240, 232, 0.15);
-  border-radius: 50%;
-  color: #C9C3B8;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s;
-}
-
-.detail-close:hover {
-  background: rgba(245, 240, 232, 0.1);
-  color: #F5F0E8;
-}
-
-.detail-close svg {
-  width: 1rem;
-  height: 1rem;
-}
-
-.detail-body {
-  padding: 1.75rem 2rem 3rem;
-}
-
-.detail-meta {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-}
-
-.detail-year {
-  font-family: var(--font-sans);
-  font-size: 0.8rem;
-  font-weight: 500;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: #D4A853;
-}
-
-.detail-badge {
-  font-family: var(--font-sans);
-  font-size: 0.7rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 0.2rem 0.6rem;
-  border-radius: 100px;
-  border: 1px solid currentColor;
-  opacity: 0.7;
-}
-
-.badge--science    { color: #7EC8C8; }
-.badge--medicine   { color: #B8D4A8; }
-.badge--art        { color: #D4A853; }
-.badge--environment { color: #8DC87E; }
-.badge--humanitarian { color: #E05C3A; }
-.badge--curiosity  { color: #C9C3B8; }
-
-.detail-title {
-  font-family: var(--font-serif);
-  font-size: clamp(1.75rem, 3vw, 2.25rem);
-  font-weight: 400;
-  color: #F5F0E8;
-  line-height: 1.15;
-  margin-bottom: 0.75rem;
-}
-
-.detail-subtitle {
-  font-family: var(--font-sans);
-  font-size: 1rem;
-  font-weight: 300;
-  color: #C9C3B8;
-  line-height: 1.6;
-}
-
-.detail-divider {
-  height: 1px;
-  background: rgba(245, 240, 232, 0.08);
-  margin: 1.5rem 0;
-}
-
-.detail-text {
-  font-family: var(--font-sans);
-  font-size: 0.9375rem;
-  font-weight: 300;
-  color: #E8E2D9;
-  line-height: 1.75;
-}
-
-.detail-placeholder {
-  color: #C9C3B8;
-  font-style: italic;
-}
-
 /* Transitions */
 .detail-enter-active,
 .detail-leave-active {

@@ -19,7 +19,7 @@ const yearDirection = ref<'up' | 'down'>('up')
 
 // Slide direction based on year change
 watch(() => store.currentYear, (next, prev) => {
-  yearDirection.value = next < prev ? 'up' : 'down'
+  yearDirection.value = next < prev ? 'down' : 'up'
   prevYear.value = prev
 })
 
@@ -46,13 +46,13 @@ const totalStories = computed(() => store.entries.length)
 </script>
 
 <template>
-  <div class="canvas">
+  <div class="fixed inset-0 w-dvw h-dvh overflow-hidden bg-ink">
     <!-- Card stack -->
-    <Transition :name="`slide-${yearDirection}`" mode="out-in">
+    <Transition :name="`slide-${yearDirection}`">
       <div
         v-if="!store.isLoading && store.currentEntry"
         :key="store.currentYear"
-        class="card-layer"
+        class="absolute inset-0"
       >
         <Transition name="slide-h" mode="out-in">
           <EntryCard
@@ -65,43 +65,64 @@ const totalStories = computed(() => store.entries.length)
       </div>
 
       <!-- Loading skeleton -->
-      <div v-else-if="store.isLoading" :key="'loading'" class="card-layer loading-state">
-        <div class="loading-pulse" />
+      <div v-else-if="store.isLoading" :key="'loading'" class="absolute inset-0 flex items-center justify-center">
+        <div class="w-12 h-12 rounded-full border-2 border-amber/20 border-t-amber animate-spin" />
       </div>
 
       <!-- Empty year -->
-      <div v-else :key="'empty'" class="card-layer empty-state">
-        <p class="empty-text">No stories found for {{ formattedYear }}</p>
-        <p class="empty-hint">Scroll to explore another year</p>
+      <div v-else :key="'empty'" class="absolute inset-0 flex flex-col items-center justify-center gap-2">
+        <p class="font-serif text-xl md:text-2xl text-cream">No stories found for {{ formattedYear }}</p>
+        <p class="font-sans text-sm text-warm-gray/60">Scroll to explore another year</p>
       </div>
     </Transition>
 
     <!-- HUD: year indicator -->
-    <div class="hud-year">
-      <span class="hud-year-label">{{ formattedYear }}</span>
-      <span v-if="store.currentEntry?.year" class="hud-era">
+    <div class="fixed top-4 left-4 md:top-8 md:left-10 z-50 flex items-baseline gap-1.5 pointer-events-none">
+      <span class="font-serif text-lg text-cream/50 tracking-[0.02em]">{{ formattedYear }}</span>
+      <span v-if="store.currentEntry?.year" class="font-sans text-[0.65rem] tracking-[0.15em] uppercase text-amber/60">
         {{ store.currentYear < 0 ? 'BC' : 'AD' }}
       </span>
     </div>
 
     <!-- HUD: story dots -->
-    <div v-if="totalStories > 1" class="hud-dots">
+    <div v-if="totalStories > 1" class="fixed bottom-20 md:bottom-8 left-1/2 -translate-x-1/2 z-50 flex gap-2 items-center">
       <button
         v-for="(_, i) in store.entries"
         :key="i"
-        class="dot"
-        :class="{ active: i === store.storyIndex }"
+        class="w-1.5 h-1.5 rounded-full border-0 p-0 cursor-pointer transition-all duration-200"
+        :class="i === store.storyIndex ? 'bg-amber scale-[1.3]' : 'bg-cream/25'"
         :aria-label="`Story ${i + 1}`"
         @click="store.goToStory(i)"
       />
     </div>
 
+    <!-- Boundary message -->
+    <Transition name="boundary">
+      <div
+        v-if="store.boundary"
+        class="fixed inset-0 z-40 flex items-center justify-center pointer-events-none"
+      >
+        <div class="text-center px-8 py-6 rounded-2xl bg-ink/70 backdrop-blur-sm">
+          <p class="font-serif text-2xl md:text-3xl text-cream/90">
+            {{ store.boundary === 'oldest' ? 'The beginning of our story' : 'You\'re at the present' }}
+          </p>
+          <p class="font-sans text-sm text-warm-gray/60 mt-2 tracking-wide">
+            {{ store.boundary === 'oldest' ? 'No older records found' : 'No newer entries yet' }}
+          </p>
+        </div>
+      </div>
+    </Transition>
+
     <!-- Year scrubber timeline -->
     <YearScrubber />
 
     <!-- Contribute button -->
-    <button class="contribute-btn" aria-label="Submit a story" @click="submitOpen = true">
-      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <button
+      class="fixed top-7 right-16 z-50 flex items-center gap-1.5 font-sans text-[0.75rem] font-medium tracking-[0.05em] text-cream/50 bg-transparent border border-cream/[0.12] rounded-full px-3.5 py-[0.45rem] cursor-pointer transition-[color,border-color,background] duration-200 hover:text-cream hover:border-cream/30 hover:bg-cream/5"
+      aria-label="Submit a story"
+      @click="submitOpen = true"
+    >
+      <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
       </svg>
       <span>Contribute</span>
@@ -120,167 +141,30 @@ const totalStories = computed(() => store.entries.length)
 </template>
 
 <style scoped>
-.canvas {
-  position: fixed;
-  inset: 0;
-  width: 100dvw;
-  height: 100dvh;
-  overflow: hidden;
-  background: #0F0D0B;
-}
-
-.card-layer {
-  position: absolute;
-  inset: 0;
-}
-
-/* Vertical transitions (year change) */
+/* Vertical transitions — full viewport slide */
 .slide-up-enter-active,
 .slide-up-leave-active,
 .slide-down-enter-active,
 .slide-down-leave-active {
-  transition: transform 0.55s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.3s ease;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.slide-up-enter-from  { transform: translateY(-8%); opacity: 0; }
-.slide-up-leave-to    { transform: translateY(8%);  opacity: 0; }
-.slide-down-enter-from { transform: translateY(8%);  opacity: 0; }
-.slide-down-leave-to   { transform: translateY(-8%); opacity: 0; }
+.slide-up-enter-from   { transform: translateY(-100%); }
+.slide-up-leave-to     { transform: translateY(100%);  }
+.slide-down-enter-from { transform: translateY(100%);  }
+.slide-down-leave-to   { transform: translateY(-100%); }
 
-/* Horizontal transition (story change) */
+/* Boundary message */
+.boundary-enter-active { transition: opacity 0.3s ease; }
+.boundary-leave-active { transition: opacity 0.5s ease; }
+.boundary-enter-from,
+.boundary-leave-to    { opacity: 0; }
+
+/* Horizontal transition — story change */
 .slide-h-enter-active,
 .slide-h-leave-active {
   transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.25s ease;
 }
 .slide-h-enter-from { transform: translateX(6%); opacity: 0; }
 .slide-h-leave-to   { transform: translateX(-6%); opacity: 0; }
-
-/* Loading state */
-.loading-state {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.loading-pulse {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  border: 2px solid rgba(212, 168, 83, 0.2);
-  border-top-color: #D4A853;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* Empty state */
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
-.empty-text {
-  font-family: var(--font-serif);
-  font-size: 1.5rem;
-  color: #F5F0E8;
-}
-
-.empty-hint {
-  font-family: var(--font-sans);
-  font-size: 0.875rem;
-  color: #C9C3B8;
-  opacity: 0.6;
-}
-
-/* HUD: year */
-.hud-year {
-  position: fixed;
-  top: 2rem;
-  left: 2.5rem;
-  z-index: 50;
-  display: flex;
-  align-items: baseline;
-  gap: 0.4rem;
-  pointer-events: none;
-}
-
-.hud-year-label {
-  font-family: var(--font-serif);
-  font-size: 1.1rem;
-  color: rgba(245, 240, 232, 0.5);
-  letter-spacing: 0.02em;
-}
-
-.hud-era {
-  font-family: var(--font-sans);
-  font-size: 0.65rem;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: rgba(212, 168, 83, 0.6);
-}
-
-/* Contribute button */
-.contribute-btn {
-  position: fixed;
-  top: 1.75rem;
-  right: 4rem;
-  z-index: 50;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-family: var(--font-sans);
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.05em;
-  color: rgba(245, 240, 232, 0.5);
-  background: none;
-  border: 1px solid rgba(245, 240, 232, 0.12);
-  border-radius: 100px;
-  padding: 0.45rem 0.9rem;
-  cursor: pointer;
-  transition: color 0.2s, border-color 0.2s, background 0.2s;
-}
-
-.contribute-btn svg {
-  width: 0.8rem;
-  height: 0.8rem;
-}
-
-.contribute-btn:hover {
-  color: #F5F0E8;
-  border-color: rgba(245, 240, 232, 0.3);
-  background: rgba(245, 240, 232, 0.05);
-}
-
-/* HUD: story dots */
-.hud-dots {
-  position: fixed;
-  bottom: 2rem;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 50;
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-.dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: rgba(245, 240, 232, 0.25);
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  transition: background 0.2s, transform 0.2s;
-}
-
-.dot.active {
-  background: #D4A853;
-  transform: scale(1.3);
-}
-
 </style>

@@ -17,10 +17,22 @@ export function useNavigation() {
 
   function navigateYear(direction: 1 | -1) {
     if (!canNavigate()) return
-    // direction 1 = scroll down = older year (currentYear - 1)
-    // direction -1 = scroll up = newer year (currentYear + 1)
-    // The search direction for nearestYear must match the target:
-    // going older → look for smaller years (-1), going newer → look for larger years (1)
+
+    // availableYears is sorted descending: [2020, 2016, 1969, 776, ...]
+    // direction  1 = scroll down = going older = higher index in array
+    // direction -1 = scroll up   = going newer = lower index in array
+    const years = store.availableYears
+    const currentIdx = years.indexOf(store.currentYear)
+
+    if (direction === 1 && currentIdx >= years.length - 1) {
+      store.triggerBoundary('oldest')
+      return
+    }
+    if (direction === -1 && currentIdx <= 0) {
+      store.triggerBoundary('newest')
+      return
+    }
+
     const targetYear = store.currentYear - direction
     const searchDirection = -direction as 1 | -1
     store.goToYear(targetYear, searchDirection)
