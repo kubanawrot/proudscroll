@@ -3,137 +3,117 @@ import { useNavigationStore } from '~/stores/navigation'
 
 const store = useNavigationStore()
 
-const hoveredYear = ref<number | null>(null)
+const years = computed(() => store.availableYears) // descending: newest first
+const newestYear = computed(() => years.value[0])
+const oldestYear = computed(() => years.value[years.value.length - 1])
 
-// availableYears is sorted descending (newest first = top of scrubber)
-const years = computed(() => store.availableYears)
+// 0 = top (newest), 1 = bottom (oldest)
+const progress = computed(() => {
+  const idx = years.value.indexOf(store.currentYear)
+  if (idx === -1 || years.value.length <= 1) return 0
+  return idx / (years.value.length - 1)
+})
 
 function formattedYear(y: number) {
   return y < 0 ? `${Math.abs(y)} BC` : `${y}`
 }
 
-function navigateTo(year: number) {
-  if (year === store.currentYear) return
-  const direction: 1 | -1 = year > store.currentYear ? 1 : -1
-  store.goToYear(year, direction)
+// Hover state
+const hoverProgress = ref<number | null>(null)
+const hoverYear = computed(() => {
+  if (hoverProgress.value === null || years.value.length === 0) return null
+  const idx = Math.round(hoverProgress.value * (years.value.length - 1))
+  return years.value[Math.max(0, Math.min(years.value.length - 1, idx))]
+})
+
+function onMouseMove(e: MouseEvent) {
+  const el = e.currentTarget as HTMLElement
+  const rect = el.getBoundingClientRect()
+  hoverProgress.value = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height))
+}
+
+function onMouseLeave() {
+  hoverProgress.value = null
+}
+
+function onClick(e: MouseEvent) {
+  if (hoverYear.value === null || hoverYear.value === store.currentYear) return
+  const direction: 1 | -1 = hoverYear.value > store.currentYear ? 1 : -1
+  store.goToYear(hoverYear.value, direction)
 }
 </script>
 
 <template>
-  <div class="scrubber" role="navigation" aria-label="Year timeline">
-    <div class="scrubber-track">
-      <div
-        v-for="year in years"
-        :key="year"
-        class="scrubber-item"
-        @mouseenter="hoveredYear = year"
-        @mouseleave="hoveredYear = null"
-        @click="navigateTo(year)"
-      >
-        <!-- Year label (shows on hover or when active) -->
-        <Transition name="label">
-          <span
-            v-if="hoveredYear === year || store.currentYear === year"
-            class="scrubber-label"
-            :class="{ active: store.currentYear === year }"
-          >
-            {{ formattedYear(year) }}
-          </span>
-        </Transition>
+  <div
+    class="fixed right-6 md:right-10 top-1/2 -translate-y-1/2 z-50 hidden sm:flex flex-col items-end select-none"
+    style="height: 60dvh"
+    role="navigation"
+    aria-label="Year timeline"
+  >
+    <!-- Newest year label -->
+    <span class="font-sans text-[0.6rem] tracking-[0.12em] uppercase text-cream/30 mb-3 tabular-nums">
+      {{ newestYear !== undefined ? formattedYear(newestYear) : '' }}
+    </span>
 
-        <!-- Dot -->
+    <!-- Timeline track -->
+    <div
+      class="relative flex-1 flex justify-end cursor-pointer group"
+      @mousemove="onMouseMove"
+      @mouseleave="onMouseLeave"
+      @click="onClick"
+    >
+      <!-- Expanded hit area (wider than the visible line) -->
+      <div class="absolute inset-y-0 -left-4 right-0" />
+
+      <!-- Background line -->
+      <div class="w-px h-full bg-cream/10" />
+
+      <!-- Filled portion (top → current position) -->
+      <div
+        class="absolute right-0 top-0 w-px bg-cream/25 origin-top transition-[height] duration-[600ms] ease-[cubic-bezier(0.4,0,0.2,1)]"
+        :style="{ height: `${progress * 100}%` }"
+      />
+
+      <!-- Hover ghost indicator -->
+      <Transition name="ghost">
         <div
-          class="scrubber-dot"
-          :class="{
-            active: store.currentYear === year,
-            hovered: hoveredYear === year && store.currentYear !== year,
-          }"
-        />
+          v-if="hoverProgress !== null && hoverYear !== store.currentYear"
+          class="absolute right-[-2.5px] w-1.5 h-1.5 rounded-full bg-cream/30 pointer-events-none flex items-center"
+          :style="{ top: `calc(${hoverProgress * 100}% - 3px)` }"
+        >
+          <span class="absolute right-4 font-sans text-[0.6rem] tracking-wider text-cream/40 whitespace-nowrap tabular-nums">
+            {{ hoverYear !== null ? formattedYear(hoverYear) : '' }}
+          </span>
+        </div>
+      </Transition>
+
+      <!-- Current position indicator -->
+      <div
+        class="absolute right-[-3px] w-2 h-2 rounded-full bg-amber pointer-events-none flex items-center transition-[top] duration-[600ms] ease-[cubic-bezier(0.4,0,0.2,1)]"
+        :style="{ top: `calc(${progress * 100}% - 4px)` }"
+        style="box-shadow: 0 0 8px rgba(212,168,83,0.6)"
+      >
+        <!-- Current year label -->
+        <span class="absolute right-5 font-sans text-[0.65rem] tracking-wider font-medium text-amber whitespace-nowrap tabular-nums">
+          {{ formattedYear(store.currentYear) }}
+        </span>
       </div>
     </div>
+
+    <!-- Oldest year label -->
+    <span class="font-sans text-[0.6rem] tracking-[0.12em] uppercase text-cream/30 mt-3 tabular-nums">
+      {{ oldestYear !== undefined ? formattedYear(oldestYear) : '' }}
+    </span>
   </div>
 </template>
 
 <style scoped>
-.scrubber {
-  position: fixed;
-  right: 1.75rem;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 50;
-  display: flex;
-  align-items: center;
-  /* Hide on very small screens */
-  display: none;
+.ghost-enter-active,
+.ghost-leave-active {
+  transition: opacity 0.15s ease;
 }
-
-@media (min-width: 640px) {
-  .scrubber {
-    display: flex;
-  }
-}
-
-.scrubber-track {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 10px;
-  max-height: 70dvh;
-  overflow: visible;
-}
-
-.scrubber-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  position: relative;
-}
-
-.scrubber-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: rgba(245, 240, 232, 0.2);
-  flex-shrink: 0;
-  transition: background 0.2s ease, transform 0.2s ease, width 0.2s ease;
-}
-
-.scrubber-dot.active {
-  background: #D4A853;
-  width: 8px;
-  height: 8px;
-  box-shadow: 0 0 8px rgba(212, 168, 83, 0.5);
-}
-
-.scrubber-dot.hovered {
-  background: rgba(245, 240, 232, 0.5);
-  transform: scale(1.4);
-}
-
-.scrubber-label {
-  font-family: var(--font-sans);
-  font-size: 0.65rem;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  color: rgba(245, 240, 232, 0.4);
-  white-space: nowrap;
-  user-select: none;
-}
-
-.scrubber-label.active {
-  color: #D4A853;
-  font-weight: 600;
-}
-
-/* Label fade transition */
-.label-enter-active,
-.label-leave-active {
-  transition: opacity 0.15s ease, transform 0.15s ease;
-}
-.label-enter-from,
-.label-leave-to {
+.ghost-enter-from,
+.ghost-leave-to {
   opacity: 0;
-  transform: translateX(4px);
 }
 </style>

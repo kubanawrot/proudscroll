@@ -2,9 +2,9 @@ import { createClient } from '@supabase/supabase-js'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const body = await readBody(event)
+  const payload = await readBody(event)
 
-  const { year, title, subtitle, summary, category, image_url, submitter_email } = body
+  const { year, title, subtitle, summary, body, category, image_url, submitter_email } = payload
 
   if (!year || !title || !summary) {
     throw createError({ statusCode: 400, message: 'year, title and summary are required' })
@@ -17,6 +17,7 @@ export default defineEventHandler(async (event) => {
     title,
     subtitle: subtitle || null,
     summary,
+    body: body || null,
     category: category || 'curiosity',
     image_url: image_url || null,
     status: 'pending',

@@ -244,6 +244,7 @@ function onKeydown(e: KeyboardEvent) {
   background: #151210;
   border: 1px solid rgba(245, 240, 232, 0.08);
   border-radius: 16px;
+  overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: 2.5rem;
@@ -300,12 +301,18 @@ function onKeydown(e: KeyboardEvent) {
   display: flex;
   gap: 0.75rem;
   align-items: flex-end;
+  flex-wrap: wrap;
 }
 
 .field { display: flex; flex-direction: column; gap: 0.4rem; }
 .field--narrow { width: 110px; flex-shrink: 0; }
 .field--bc { flex-shrink: 0; }
-.field--grow { flex: 1; }
+.field--grow { flex: 1; min-width: 0; }
+
+@media (max-width: 480px) {
+  .field--narrow { width: 100%; }
+  .field--grow   { width: 100%; flex-basis: 100%; }
+}
 
 .field-label {
   font-family: var(--font-sans);
