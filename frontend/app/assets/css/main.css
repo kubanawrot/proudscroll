@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "DM Serif Display", Georgia, serif;
+  --font-sans: "DM Sans", system-ui, sans-serif;
+
+  --color-amber: #D4A853;
+  --color-ember: #E05C3A;
+  --color-cream: #F5F0E8;
+  --color-warm-gray: #C9C3B8;
+  --color-ink: #0F0D0B;
+}
+
+html, body {
+  overflow: hidden;
+  background: #0F0D0B;
+  font-family: var(--font-sans);
+}
