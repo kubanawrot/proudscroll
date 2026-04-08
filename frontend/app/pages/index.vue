@@ -15,15 +15,15 @@ useHead({
   ]
 })
 
+const store = useNavigationStore()
+const {attach, detach} = useNavigation()
+
 // Preload active entry image at highest browser priority
 useHead(computed(() => ({
   link: store.currentEntry?.image_url
     ? [{ rel: 'preload', as: 'image', href: store.currentEntry.image_url }]
     : []
 })))
-
-const store = useNavigationStore()
-const {attach, detach} = useNavigation()
 
 const detailOpen = ref(false)
 const submitOpen = ref(false)
