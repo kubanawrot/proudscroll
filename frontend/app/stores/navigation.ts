@@ -92,11 +92,11 @@ export const useNavigationStore = defineStore('navigation', () => {
       }
     }
 
-    currentYear.value = target
-    storyIndex.value = 0
-
+    // Load data first — then change the key so the transition shows correct content immediately
     const data = await loadYear(target)
     entries.value = data
+    storyIndex.value = 0
+    currentYear.value = target
     isLoading.value = false
 
     // Preload neighbours in available years list

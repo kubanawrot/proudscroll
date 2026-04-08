@@ -91,7 +91,7 @@ const totalStories = computed(() => store.entries.length)
         :key="store.currentYear"
         class="absolute inset-0"
       >
-        <Transition name="slide-h" mode="out-in">
+        <Transition :name="store.isTransitioning ? '' : 'slide-h'" mode="out-in">
           <EntryCard
             :key="store.currentEntry.id"
             :entry="store.currentEntry"

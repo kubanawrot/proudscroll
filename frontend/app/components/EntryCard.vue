@@ -31,15 +31,6 @@ const formattedYear = computed(() => {
   return y < 0 ? `${Math.abs(y)} BC` : `${y} AD`
 })
 
-const imageLoaded = ref(false)
-
-// Reset blur state when the entry changes
-watch(
-  () => props.entry.id,
-  () => {
-    imageLoaded.value = false
-  }
-)
 </script>
 
 <template>
@@ -54,9 +45,7 @@ watch(
         :src="entry.image_url"
         :alt="entry.title"
         :loading="active ? 'eager' : 'lazy'"
-        class="w-full h-full object-cover object-center transition-[transform,opacity] duration-700 ease-in-out"
-        :class="imageLoaded ? 'scale-100 opacity-100' : 'scale-[1.04] opacity-0'"
-        @load="imageLoaded = true"
+        class="w-full h-full object-cover object-center"
       />
       <!-- Gradient scrim: heavier on mobile for readability -->
       <div
