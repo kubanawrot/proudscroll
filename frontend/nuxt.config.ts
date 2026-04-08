@@ -8,7 +8,17 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     '@nuxtjs/google-fonts',
     '@vueuse/nuxt',
+    '@nuxtjs/i18n',
   ],
+
+  i18n: {
+    strategy: 'no_prefix',
+    defaultLocale: 'en',
+    locales: [
+      { code: 'en', file: 'en.ts' },
+      { code: 'pl', file: 'pl.ts' },
+    ],
+  },
 
   vite: {
     plugins: [tailwindcss()],

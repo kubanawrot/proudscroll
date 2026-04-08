@@ -10,6 +10,11 @@ export interface Entry {
   image_url: string | null
   category: string
   likes_count: number
+  // Polish translations (optional — fall back to English when null)
+  title_pl?: string | null
+  subtitle_pl?: string | null
+  summary_pl?: string | null
+  body_pl?: string | null
 }
 
 export const useNavigationStore = defineStore('navigation', () => {

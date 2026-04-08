@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
 
   const { data, error } = await supabase
     .from('entries')
-    .select('id, year, title, subtitle, summary, body, image_url, category, likes_count')
+    .select('id, year, title, subtitle, summary, body, image_url, category, likes_count, title_pl, subtitle_pl, summary_pl, body_pl')
     .eq('year', year)
     .eq('status', 'published')
     .order('likes_count', { ascending: false })

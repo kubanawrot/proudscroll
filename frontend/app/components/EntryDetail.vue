@@ -20,6 +20,10 @@ const formattedYear = computed(() => {
   return y < 0 ? `${Math.abs(y)} BC` : `${y} AD`
 })
 
+const { t } = useI18n()
+const { localize } = useEntryLocale()
+const localizedEntry = computed(() => props.entry ? localize(props.entry) : null)
+
 const categoryColors: Record<string, string> = {
   science: 'text-[#7EC8C8] border-[#7EC8C8]',
   medicine: 'text-[#B8D4A8] border-[#B8D4A8]',
@@ -27,15 +31,6 @@ const categoryColors: Record<string, string> = {
   environment: 'text-[#8DC87E] border-[#8DC87E]',
   humanitarian: 'text-ember border-ember',
   curiosity: 'text-warm-gray border-warm-gray',
-}
-
-const categoryLabel: Record<string, string> = {
-  science: 'Science',
-  medicine: 'Medicine',
-  art: 'Art & Culture',
-  environment: 'Environment',
-  humanitarian: 'Humanitarian',
-  curiosity: 'Curiosity',
 }
 
 // Close on Escape
@@ -88,18 +83,18 @@ function onKeydown(e: KeyboardEvent) {
                 v-if="entry.category"
                 class="font-sans text-[0.7rem] tracking-[0.08em] uppercase px-2.5 py-0.5 rounded-full border opacity-70"
                 :class="categoryColors[entry.category]"
-              >{{ categoryLabel[entry.category] ?? entry.category }}</span>
+              >{{ t(`categories.${entry.category}`, entry.category) }}</span>
             </div>
 
-            <h2 class="font-serif text-2xl md:text-3xl font-normal text-cream leading-[1.15] mb-3">{{ entry.title }}</h2>
-            <p v-if="entry.subtitle" class="font-sans text-base font-light text-warm-gray leading-relaxed">{{ entry.subtitle }}</p>
+            <h2 class="font-serif text-2xl md:text-3xl font-normal text-cream leading-[1.15] mb-3">{{ localizedEntry?.title }}</h2>
+            <p v-if="localizedEntry?.subtitle" class="font-sans text-base font-light text-warm-gray leading-relaxed">{{ localizedEntry.subtitle }}</p>
 
             <div class="h-px bg-cream/[0.08] my-6" />
 
             <!-- Full body -->
             <div class="font-sans text-[0.9375rem] font-light text-[#E8E2D9] leading-[1.75]">
-              <p v-if="entry.body">{{ entry.body }}</p>
-              <p v-else class="text-warm-gray italic">Full story coming soon.</p>
+              <p v-if="localizedEntry?.body">{{ localizedEntry.body }}</p>
+              <p v-else class="text-warm-gray italic">{{ t('full_story_soon') }}</p>
             </div>
           </div>
         </div>

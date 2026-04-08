@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
 
   let q = supabase
     .from('entries')
-    .select('id, year, title, subtitle, summary, body, image_url, category, status, likes_count, created_at')
+    .select('id, year, title, subtitle, summary, body, image_url, category, status, likes_count, created_at, title_pl, subtitle_pl, summary_pl, body_pl')
     .order('created_at', { ascending: false })
 
   if (query.status && query.status !== 'all') {

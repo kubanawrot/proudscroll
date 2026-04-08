@@ -10,6 +10,11 @@ const emit = defineEmits<{
   openDetail: []
 }>()
 
+const { t } = useI18n()
+const { localize } = useEntryLocale()
+
+const localizedEntry = computed(() => localize(props.entry))
+
 const entryId = computed(() => props.entry.id)
 const {liked, pending, localCount, toggleLike} = useLike(entryId)
 
@@ -25,15 +30,6 @@ const formattedYear = computed(() => {
   const y = props.entry.year
   return y < 0 ? `${Math.abs(y)} BC` : `${y} AD`
 })
-
-const categoryLabel: Record<string, string> = {
-  science: "Science",
-  medicine: "Medicine",
-  art: "Art & Culture",
-  environment: "Environment",
-  humanitarian: "Humanitarian",
-  curiosity: "Curiosity"
-}
 
 const imageLoaded = ref(false)
 
@@ -72,7 +68,7 @@ watch(
 
     <!-- Content -->
     <div
-      class="relative z-10 p-6 pb-18 md:px-12 md:py-10 lg:px-14 lg:py-12 2xl:py-16 w-full md:max-w-2xl lg:max-w-4xl 2xl:max-w-5xl"
+      class="relative z-10 p-6 pb-10 md:px-12 md:py-10 lg:px-14 lg:py-12 2xl:py-16 w-full md:max-w-2xl lg:max-w-4xl 2xl:max-w-5xl"
     >
       <div class="flex items-center gap-4 mb-4 2xl:mb-6">
         <span
@@ -81,21 +77,21 @@ watch(
         >
         <span
           class="font-sans text-sm 2xl:text-base tracking-[0.1em] uppercase text-warm-gray opacity-70"
-          >{{ categoryLabel[entry.category] ?? entry.category }}</span
+          >{{ t(`categories.${entry.category}`, entry.category) }}</span
         >
       </div>
 
       <h1
         class="font-serif text-4xl md:text-5xl lg:text-7xl 2xl:text-8xl font-normal leading-[1.1] text-cream mb-3 lg:mb-5 2xl:mb-8 tracking-[-0.01em]"
       >
-        {{ entry.title }}
+        {{ localizedEntry.title }}
       </h1>
 
       <p
-        v-if="entry.subtitle"
+        v-if="localizedEntry.subtitle"
         class="font-sans text-base md:text-lg 2xl:text-xl font-light text-warm-gray leading-relaxed mb-6 md:mb-8 max-w-2xl 2xl:max-w-3xl"
       >
-        {{ entry.subtitle }}
+        {{ localizedEntry.subtitle }}
       </p>
 
       <div class="flex items-center gap-6 lg:gap-8 2xl:gap-10">
@@ -134,7 +130,7 @@ watch(
           class="flex items-center gap-2 lg:gap-2.5 xl:gap-3 font-sans text-sm lg:text-base 2xl:text-lg font-normal text-cream bg-transparent border border-cream/50 rounded-full pl-5 lg:pl-6 2xl:pl-7 pr-4 lg:pr-5 2xl:pr-6 py-2 lg:py-2.5 2xl:py-3 cursor-pointer tracking-[0.02em] transition-[background-color,border-color] duration-200 hover:bg-cream/[0.08] hover:border-cream/70"
           @click="emit('openDetail')"
         >
-          <span class="-translate-y-px">Read more</span>
+          <span class="-translate-y-px">{{ t('read_more') }}</span>
 
           <svg
             class="w-5 2xl:w-6 h-5 2xl:h-6"

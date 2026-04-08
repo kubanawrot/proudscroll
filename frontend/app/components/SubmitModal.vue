@@ -1,6 +1,8 @@
 <script setup lang="ts">
 const emit = defineEmits<{ close: [] }>()
 
+const { t } = useI18n()
+
 const form = reactive({
   year: '',
   isBC: false,
@@ -16,14 +18,14 @@ const form = reactive({
 const state = ref<'idle' | 'submitting' | 'success' | 'error'>('idle')
 const errorMsg = ref('')
 
-const categories = [
-  { value: 'science',       label: 'Science & Technology' },
-  { value: 'medicine',      label: 'Medicine & Health' },
-  { value: 'art',           label: 'Art & Culture' },
-  { value: 'environment',   label: 'Environment' },
-  { value: 'humanitarian',  label: 'Humanitarian' },
-  { value: 'curiosity',     label: 'Curiosity' },
-]
+const categories = computed(() => [
+  { value: 'science',       label: t('submit.cat_science') },
+  { value: 'medicine',      label: t('submit.cat_medicine') },
+  { value: 'art',           label: t('submit.cat_art') },
+  { value: 'environment',   label: t('submit.cat_environment') },
+  { value: 'humanitarian',  label: t('submit.cat_humanitarian') },
+  { value: 'curiosity',     label: t('submit.cat_curiosity') },
+])
 
 async function submit() {
   if (!form.year || !form.title || !form.summary) return
@@ -86,28 +88,28 @@ function onKeydown(e: KeyboardEvent) {
           <!-- Success state -->
           <div v-if="state === 'success'" class="success-state">
             <div class="success-icon">✦</div>
-            <h2 class="success-title">Thank you for contributing.</h2>
-            <p class="success-body">Your story has been submitted for review. If approved, it will appear on Proudscroll for the world to discover.</p>
-            <button class="btn-primary" @click="close">Close</button>
+            <h2 class="success-title">{{ t('submit.success_title') }}</h2>
+            <p class="success-body">{{ t('submit.success_body') }}</p>
+            <button class="btn-primary" @click="close">{{ t('submit.close') }}</button>
           </div>
 
           <!-- Form state -->
           <template v-else>
             <div class="modal-header">
-              <h2 class="modal-title">Share a moment of pride</h2>
-              <p class="modal-subtitle">Nominate a discovery, achievement, or milestone that deserves to be remembered. All submissions are reviewed before publishing.</p>
+              <h2 class="modal-title">{{ t('submit.title') }}</h2>
+              <p class="modal-subtitle">{{ t('submit.subtitle') }}</p>
             </div>
 
             <form class="modal-form" @submit.prevent="submit">
               <!-- Year row -->
               <div class="field-row">
                 <div class="field field--narrow">
-                  <label class="field-label">Year <span class="required">*</span></label>
+                  <label class="field-label">{{ t('submit.year') }} <span class="required">*</span></label>
                   <input
                     v-model="form.year"
                     type="number"
                     class="field-input"
-                    placeholder="e.g. 1969"
+                    :placeholder="t('submit.year_placeholder')"
                     min="1"
                     required
                   />
@@ -120,7 +122,7 @@ function onKeydown(e: KeyboardEvent) {
                   </label>
                 </div>
                 <div class="field field--grow">
-                  <label class="field-label">Category <span class="required">*</span></label>
+                  <label class="field-label">{{ t('submit.category') }} <span class="required">*</span></label>
                   <select v-model="form.category" class="field-input field-select">
                     <option v-for="c in categories" :key="c.value" :value="c.value">{{ c.label }}</option>
                   </select>
@@ -129,12 +131,12 @@ function onKeydown(e: KeyboardEvent) {
 
               <!-- Title -->
               <div class="field">
-                <label class="field-label">Title <span class="required">*</span></label>
+                <label class="field-label">{{ t('submit.entry_title') }} <span class="required">*</span></label>
                 <input
                   v-model="form.title"
                   type="text"
                   class="field-input"
-                  placeholder="e.g. First humans walk on the Moon"
+                  :placeholder="t('submit.title_placeholder')"
                   maxlength="120"
                   required
                 />
@@ -142,23 +144,23 @@ function onKeydown(e: KeyboardEvent) {
 
               <!-- Subtitle -->
               <div class="field">
-                <label class="field-label">Subtitle <span class="optional">optional</span></label>
+                <label class="field-label">{{ t('submit.entry_subtitle') }} <span class="optional">{{ t('submit.optional') }}</span></label>
                 <input
                   v-model="form.subtitle"
                   type="text"
                   class="field-input"
-                  placeholder="A short tagline or context"
+                  :placeholder="t('submit.subtitle_placeholder')"
                   maxlength="160"
                 />
               </div>
 
               <!-- Summary -->
               <div class="field">
-                <label class="field-label">Summary <span class="required">*</span></label>
+                <label class="field-label">{{ t('submit.summary') }} <span class="required">*</span></label>
                 <textarea
                   v-model="form.summary"
                   class="field-input field-textarea"
-                  placeholder="2–3 sentences shown on the card. What happened, and why does it matter?"
+                  :placeholder="t('submit.summary_placeholder')"
                   rows="3"
                   maxlength="400"
                   required
@@ -168,35 +170,35 @@ function onKeydown(e: KeyboardEvent) {
 
               <!-- Full story -->
               <div class="field">
-                <label class="field-label">Full story <span class="optional">optional</span></label>
+                <label class="field-label">{{ t('submit.full_story') }} <span class="optional">{{ t('submit.optional') }}</span></label>
                 <textarea
                   v-model="form.body"
                   class="field-input field-textarea"
-                  placeholder="The deeper story, shown in the detail panel when the reader taps 'Read more'."
+                  :placeholder="t('submit.full_story_placeholder')"
                   rows="5"
                 />
               </div>
 
               <!-- Image URL -->
               <div class="field">
-                <label class="field-label">Image URL <span class="optional">optional</span></label>
+                <label class="field-label">{{ t('submit.image_url') }} <span class="optional">{{ t('submit.optional') }}</span></label>
                 <input
                   v-model="form.image_url"
                   type="url"
                   class="field-input"
                   placeholder="https://images.unsplash.com/photo-..."
                 />
-                <span class="field-hint">Direct link to a high-resolution image (min 1600px wide recommended)</span>
+                <span class="field-hint">{{ t('submit.image_hint') }}</span>
               </div>
 
               <!-- Email -->
               <div class="field">
-                <label class="field-label">Your email <span class="optional">optional</span></label>
+                <label class="field-label">{{ t('submit.email') }} <span class="optional">{{ t('submit.optional') }}</span></label>
                 <input
                   v-model="form.submitter_email"
                   type="email"
                   class="field-input"
-                  placeholder="So we can credit you when it's published"
+                  :placeholder="t('submit.email_placeholder')"
                 />
               </div>
 
@@ -204,14 +206,14 @@ function onKeydown(e: KeyboardEvent) {
               <p v-if="state === 'error'" class="error-msg">{{ errorMsg }}</p>
 
               <div class="modal-actions">
-                <button type="button" class="btn-ghost" @click="close">Cancel</button>
+                <button type="button" class="btn-ghost" @click="close">{{ t('submit.cancel') }}</button>
                 <button
                   type="submit"
                   class="btn-primary"
                   :disabled="state === 'submitting' || !form.year || !form.title || !form.summary"
                 >
-                  <span v-if="state === 'submitting'">Submitting…</span>
-                  <span v-else>Submit for review</span>
+                  <span v-if="state === 'submitting'">{{ t('submit.submitting') }}</span>
+                  <span v-else>{{ t('submit.submit') }}</span>
                 </button>
               </div>
             </form>

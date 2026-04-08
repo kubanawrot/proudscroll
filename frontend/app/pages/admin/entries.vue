@@ -17,6 +17,10 @@ interface Entry {
   status: string
   likes_count: number
   created_at: string
+  title_pl: string | null
+  subtitle_pl: string | null
+  summary_pl: string | null
+  body_pl: string | null
 }
 
 const statusFilter = ref<Status>('pending')
@@ -68,6 +72,10 @@ async function saveEdit() {
         year: editEntry.value.year,
         category: editEntry.value.category,
         status: editEntry.value.status,
+        title_pl: editEntry.value.title_pl || null,
+        subtitle_pl: editEntry.value.subtitle_pl || null,
+        summary_pl: editEntry.value.summary_pl || null,
+        body_pl: editEntry.value.body_pl || null,
       },
     })
     editEntry.value = null
@@ -239,6 +247,30 @@ const pendingCount = computed(() => entries.value.filter(e => e.status === 'pend
               <div class="ef-field">
                 <label>Image URL</label>
                 <input v-model="editEntry.image_url" type="url" class="ef-input" placeholder="https://..." />
+              </div>
+
+              <div class="ef-divider">
+                <span>Polish translation (optional)</span>
+              </div>
+
+              <div class="ef-field">
+                <label>Title PL</label>
+                <input v-model="editEntry.title_pl" type="text" class="ef-input" placeholder="Polish title" />
+              </div>
+
+              <div class="ef-field">
+                <label>Subtitle PL</label>
+                <input v-model="editEntry.subtitle_pl" type="text" class="ef-input" placeholder="Polish subtitle (optional)" />
+              </div>
+
+              <div class="ef-field">
+                <label>Summary PL</label>
+                <textarea v-model="editEntry.summary_pl" class="ef-input ef-textarea" rows="3" placeholder="Polish summary" />
+              </div>
+
+              <div class="ef-field">
+                <label>Full story PL</label>
+                <textarea v-model="editEntry.body_pl" class="ef-input ef-textarea" rows="6" placeholder="Polish full story (optional)" />
               </div>
 
               <p v-if="errorMsg" class="ef-error">{{ errorMsg }}</p>
@@ -587,6 +619,27 @@ const pendingCount = computed(() => entries.value.filter(e => e.status === 'pend
 .ef-select option { background: #151210; }
 
 .ef-textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+
+.ef-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.5rem 0;
+}
+.ef-divider span {
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(212, 168, 83, 0.6);
+  white-space: nowrap;
+}
+.ef-divider::before, .ef-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(245, 240, 232, 0.06);
+}
 
 .ef-error {
   font-size: 0.8rem;

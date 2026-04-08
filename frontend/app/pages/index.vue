@@ -2,6 +2,8 @@
 import {useNavigationStore} from "~/stores/navigation"
 import {useNavigation} from "~/composables/useNavigation"
 
+const {t, locale, setLocale} = useI18n()
+
 useHead({
   title: "Proudscroll — Humanity's Greatest Moments",
   meta: [
@@ -34,9 +36,12 @@ watch(
 const showHint = ref(false)
 let initialLoadDone = false
 
-watch(() => store.currentYear, () => {
-  if (initialLoadDone) showHint.value = false
-})
+watch(
+  () => store.currentYear,
+  () => {
+    if (initialLoadDone) showHint.value = false
+  }
+)
 
 onMounted(async () => {
   attach()
@@ -45,7 +50,9 @@ onMounted(async () => {
   await store.goToYear(startYear, 1)
   initialLoadDone = true
   showHint.value = true
-  setTimeout(() => { showHint.value = false }, 5000)
+  setTimeout(() => {
+    showHint.value = false
+  }, 5000)
 })
 
 onUnmounted(() => {
@@ -103,9 +110,9 @@ const totalStories = computed(() => store.entries.length)
         class="absolute inset-0 flex flex-col items-center justify-center gap-2"
       >
         <p class="font-serif text-xl md:text-2xl text-cream">
-          No stories found for {{ formattedYear }}
+          {{ t("no_stories", {year: formattedYear}) }}
         </p>
-        <p class="font-sans text-sm text-warm-gray/60">Scroll to explore another year</p>
+        <p class="font-sans text-sm text-warm-gray/60">{{ t("scroll_another") }}</p>
       </div>
     </Transition>
 
@@ -122,30 +129,46 @@ const totalStories = computed(() => store.entries.length)
       </span>
     </div>
 
-    <!-- HUD: story dots -->
-    <div
-      v-if="totalStories > 1"
-      class="fixed bottom-10 md:bottom-8 left-1/2 -translate-x-1/2 z-50 flex gap-2 items-center"
-    >
+    <!-- HUD: next story arrow -->
+    <Transition name="story-arrow">
       <button
-        v-for="(_, i) in store.entries"
-        :key="i"
-        class="w-1.5 h-1.5 rounded-full border-0 p-0 cursor-pointer transition-all duration-200"
-        :class="i === store.storyIndex ? 'bg-amber scale-[1.3]' : 'bg-cream/25'"
-        :aria-label="`Story ${i + 1}`"
-        @click="store.goToStory(i)"
-      />
-    </div>
+        v-if="totalStories > 1 && store.storyIndex < totalStories - 1"
+        class="fixed right-6 md:right-10 top-1/2 md:top-auto md:bottom-10 -translate-y-1/2 md:translate-y-0 z-50 flex flex-col items-center gap-1.5 text-cream/30 hover:text-cream/70 transition-colors duration-200 bg-transparent border-0 p-2 cursor-pointer"
+        :aria-label="`Next story (${store.storyIndex + 1} of ${totalStories})`"
+        @click="store.goToStory(store.storyIndex + 1)"
+      >
+        <span class="font-sans text-[0.55rem] tracking-[0.15em] uppercase">
+          {{ store.storyIndex + 1 }}/{{ totalStories }}
+        </span>
+        <svg class="w-4 h-4 animate-bounce" viewBox="0 0 24 24" fill="none">
+          <path
+            d="M9 18l6-6-6-6"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </button>
+    </Transition>
 
     <!-- Scroll hint -->
     <Transition name="hint">
       <div
         v-if="showHint"
-        class="fixed bottom-10 md:bottom-12 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center gap-2 pointer-events-none"
+        class="fixed inset-0 z-40 flex flex-col items-center justify-center gap-3 pointer-events-none"
       >
-        <span class="font-sans text-[0.6rem] tracking-[0.2em] uppercase text-cream/30">Scroll to explore</span>
-        <svg class="w-4 h-4 text-cream/25 animate-bounce" viewBox="0 0 24 24" fill="none">
-          <path d="M12 5v14M5 15l7 7 7-7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <span class="font-sans text-xs tracking-[0.25em] uppercase text-cream/40">{{
+          t("scroll_hint")
+        }}</span>
+        <svg class="w-5 h-5 text-cream/30 animate-bounce" viewBox="0 0 24 24" fill="none">
+          <path
+            d="M12 5v14M5 15l7 7 7-7"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
         </svg>
       </div>
     </Transition>
@@ -160,14 +183,10 @@ const totalStories = computed(() => store.entries.length)
           class="text-center px-8 lg:px-10 2xl:px-12 py-6 lg:py-8 2xl:py-10 rounded-2xl bg-ink/70 backdrop-blur-sm"
         >
           <p class="font-serif text-2xl md:text-3xl text-cream/90">
-            {{
-              store.boundary === "oldest"
-                ? "Congrats, you've reachend the beginning of our story"
-                : "We can't look into the future. Yet."
-            }}
+            {{ store.boundary === "oldest" ? t("boundary_oldest") : t("boundary_newest") }}
           </p>
           <p class="font-sans text-sm text-warm-gray/60 mt-2 lg:mt-4 2xl:mt-6 tracking-wide">
-            {{ store.boundary === "oldest" ? "No older records found" : "No newer entries yet" }}
+            {{ store.boundary === "oldest" ? t("no_older") : t("no_newer") }}
           </p>
         </div>
       </div>
@@ -176,27 +195,41 @@ const totalStories = computed(() => store.entries.length)
     <!-- Year scrubber timeline -->
     <YearScrubber />
 
-    <!-- Contribute button -->
-    <button
-      class="fixed top-4 md:top-8 2xl:top-12 right-6 md:right-12 lg:right-14 z-50 flex items-center gap-2 lg:gap-2.5 xl:gap-3 font-sans text-sm lg:text-base 2xl:text-lg font-normal tracking-[0.05em] text-cream/60 bg-transparent border border-cream/[0.3] rounded-full px-3.5 lg:px-5 2xl:px-6 py-2 lg:py-2.5 2xl:py-3 cursor-pointer transition-[color,border-color,background] duration-200 hover:text-cream hover:border-cream/50 hover:bg-cream/10"
-      aria-label="Submit a story"
-      @click="submitOpen = true"
+    <!-- Top-right controls -->
+    <div
+      class="fixed top-4 md:top-8 2xl:top-12 right-6 md:right-12 lg:right-14 z-50 flex items-center gap-2 md:gap-3"
     >
-      <svg
-        class="w-4 2xl:w-5 h-4 2xl:h-5"
-        viewBox="0 0 24 24"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
+      <!-- Language toggle -->
+      <button
+        class="font-sans text-sm lg:text-base 2xl:text-lg font-medium tracking-[0.1em] uppercase text-cream/60 bg-transparent border border-cream/[0.3] rounded-full px-3.5 lg:px-5 2xl:px-6 py-2 lg:py-2.5 2xl:py-3 cursor-pointer transition-[color,border-color,background] duration-200 hover:text-cream hover:border-cream/50 hover:bg-cream/10"
+        :aria-label="locale === 'en' ? 'Switch to Polish' : 'Switch to English'"
+        @click="setLocale(locale === 'en' ? 'pl' : 'en')"
       >
-        <path
-          d="M12 5v14M5 12h14"
-          stroke="currentColor"
-          stroke-width="1.5"
-          stroke-linecap="round"
-        />
-      </svg>
-      <span>Contribute</span>
-    </button>
+        {{ locale === "en" ? "PL" : "EN" }}
+      </button>
+
+      <!-- Contribute button -->
+      <button
+        class="flex items-center gap-2 lg:gap-2.5 xl:gap-3 font-sans text-sm lg:text-base 2xl:text-lg font-normal tracking-[0.05em] text-cream/60 bg-transparent border border-cream/[0.3] rounded-full px-3.5 lg:px-5 2xl:px-6 py-2 lg:py-2.5 2xl:py-3 cursor-pointer transition-[color,border-color,background] duration-200 hover:text-cream hover:border-cream/50 hover:bg-cream/10"
+        aria-label="Submit a story"
+        @click="submitOpen = true"
+      >
+        <svg
+          class="w-4 2xl:w-5 h-4 2xl:h-5"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M12 5v14M5 12h14"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+          />
+        </svg>
+        <span>{{ t("contribute") }}</span>
+      </button>
+    </div>
 
     <!-- Submit modal -->
     <SubmitModal v-if="submitOpen" @close="submitOpen = false" />
@@ -228,10 +261,27 @@ const totalStories = computed(() => store.entries.length)
   transform: translateY(-100%);
 }
 
+/* Next story arrow */
+.story-arrow-enter-active,
+.story-arrow-leave-active {
+  transition: opacity 0.3s ease;
+}
+.story-arrow-enter-from,
+.story-arrow-leave-to {
+  opacity: 0;
+}
+
 /* Scroll hint */
-.hint-enter-active { transition: opacity 0.8s ease; }
-.hint-leave-active { transition: opacity 0.5s ease; }
-.hint-enter-from, .hint-leave-to { opacity: 0; }
+.hint-enter-active {
+  transition: opacity 0.8s ease;
+}
+.hint-leave-active {
+  transition: opacity 0.5s ease;
+}
+.hint-enter-from,
+.hint-leave-to {
+  opacity: 0;
+}
 
 /* Boundary message */
 .boundary-enter-active {

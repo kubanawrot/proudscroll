@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, 'id')
   const body = await readBody(event)
 
-  const allowed = ['status', 'title', 'subtitle', 'summary', 'body', 'image_url', 'year', 'category']
+  const allowed = ['status', 'title', 'subtitle', 'summary', 'body', 'image_url', 'year', 'category', 'title_pl', 'subtitle_pl', 'summary_pl', 'body_pl']
   const updates = Object.fromEntries(
     Object.entries(body).filter(([k]) => allowed.includes(k))
   )
