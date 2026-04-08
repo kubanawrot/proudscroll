@@ -44,20 +44,18 @@ watch(
 
 <template>
   <div
-    class="absolute inset-0 w-dvw h-dvh flex items-end transition-[opacity,transform] duration-500 ease-[cubic-bezier(0.25,1,0.5,1)]"
+    class="absolute inset-0 w-dvw h-dvh flex items-end transition-[opacity,transform] duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] will-change-transform"
     :class="{active}"
   >
-    <!-- Background image with blur-up -->
+    <!-- Background image fade-in (no blur — blur animation is not GPU-composited) -->
     <div class="absolute inset-0 overflow-hidden">
       <img
         v-if="entry.image_url"
         :src="entry.image_url"
         :alt="entry.title"
-        loading="lazy"
-        class="w-full h-full object-cover object-center transition-[filter,transform,opacity] duration-700 ease-in-out"
-        :class="
-          imageLoaded ? 'blur-0 scale-100 opacity-100' : 'blur-[12px] scale-[1.04] opacity-60'
-        "
+        :loading="active ? 'eager' : 'lazy'"
+        class="w-full h-full object-cover object-center transition-[transform,opacity] duration-700 ease-in-out"
+        :class="imageLoaded ? 'scale-100 opacity-100' : 'scale-[1.04] opacity-0'"
         @load="imageLoaded = true"
       />
       <!-- Gradient scrim: heavier on mobile for readability -->

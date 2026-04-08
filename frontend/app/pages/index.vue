@@ -15,6 +15,13 @@ useHead({
   ]
 })
 
+// Preload active entry image at highest browser priority
+useHead(computed(() => ({
+  link: store.currentEntry?.image_url
+    ? [{ rel: 'preload', as: 'image', href: store.currentEntry.image_url }]
+    : []
+})))
+
 const store = useNavigationStore()
 const {attach, detach} = useNavigation()
 
@@ -246,6 +253,7 @@ const totalStories = computed(() => store.entries.length)
 .slide-down-enter-active,
 .slide-down-leave-active {
   transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
 }
 
 .slide-up-enter-from {

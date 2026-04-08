@@ -38,7 +38,18 @@ export const useNavigationStore = defineStore('navigation', () => {
     if (cache.has(year)) return cache.get(year)!
     const data = await $fetch<Entry[]>(`/api/entries?year=${year}`)
     cache.set(year, data)
+    prefetchImages(data)
     return data
+  }
+
+  function prefetchImages(entries: Entry[]) {
+    if (!import.meta.client) return
+    entries.forEach(e => {
+      if (e.image_url) {
+        const img = new Image()
+        img.src = e.image_url
+      }
+    })
   }
 
   /**
