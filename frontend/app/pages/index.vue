@@ -65,7 +65,10 @@ onMounted(async () => {
     setTimeout(attach, 0)
   }
   document.addEventListener("wheel", dismissLanding, {once: true, passive: true})
-  document.addEventListener("touchstart", dismissLanding, {once: true, passive: true})
+  document.addEventListener("touchstart", () => {
+    showLanding.value = false
+    document.addEventListener("touchend", () => setTimeout(attach, 0), {once: true, passive: true})
+  }, {once: true, passive: true})
 })
 
 onUnmounted(() => {
