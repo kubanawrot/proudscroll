@@ -75,7 +75,7 @@ watch(submitOpen, (open) => {
 // Formatted year for HUD
 const formattedYear = computed(() => {
   const y = store.currentYear
-  return y < 0 ? `${Math.abs(y)} BC` : `${y}`
+  return `${Math.abs(y)}`
 })
 
 // Story navigation dots
