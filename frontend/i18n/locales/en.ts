@@ -1,4 +1,13 @@
 export default {
+  surprise: 'Surprise me',
+  era_contemporary: 'Contemporary',
+  era_modern_age: 'Modern Age',
+  era_medieval: 'Medieval',
+  era_antiquity: 'Antiquity',
+  era_prehistory: 'Prehistory',
+  landing_title: 'An Epic Scrolling Journey',
+  landing_subtitle: 'A proud descent from the stars of today to the first spark of man.',
+  landing_hint: 'Scroll to begin',
   scroll_hint: 'Scroll to explore',
   scroll_another: 'Scroll to explore another year',
   no_stories: 'No stories found for {year}',

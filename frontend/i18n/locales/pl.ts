@@ -1,4 +1,13 @@
 export default {
+  surprise: 'Zaskocz mnie',
+  era_contemporary: 'Współczesność',
+  era_modern_age: 'Nowożytność',
+  era_medieval: 'Średniowiecze',
+  era_antiquity: 'Starożytność',
+  era_prehistory: 'Prehistoria',
+  landing_title: 'Epicka podróż przez czas',
+  landing_subtitle: 'Dumne zejście od gwiazd dnia dzisiejszego do pierwszej iskry człowieka.',
+  landing_hint: 'Przewiń, aby zacząć',
   scroll_hint: 'Przewijaj, aby odkrywać',
   scroll_another: 'Przewiń, aby odkryć inny rok',
   no_stories: 'Brak historii dla roku {year}',

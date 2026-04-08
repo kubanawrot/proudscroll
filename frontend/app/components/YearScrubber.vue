@@ -2,6 +2,7 @@
 import { useNavigationStore } from '~/stores/navigation'
 
 const store = useNavigationStore()
+const { t } = useI18n()
 
 const years = computed(() => store.availableYears) // descending: newest first
 const newestYear = computed(() => years.value[0])
@@ -41,6 +42,34 @@ function onClick(e: MouseEvent) {
   const direction: 1 | -1 = hoverYear.value > store.currentYear ? 1 : -1
   store.goToYear(hoverYear.value, direction)
 }
+
+// Era quick-jump
+const eras = [
+  { key: 'era_contemporary', targetYear: 1950   },
+  { key: 'era_modern_age',   targetYear: 1600   },
+  { key: 'era_medieval',     targetYear: 900    },
+  { key: 'era_antiquity',    targetYear: -300   },
+  { key: 'era_prehistory',   targetYear: -50000 },
+]
+
+function nearestToTarget(targetYear: number) {
+  return years.value.reduce((prev, curr) =>
+    Math.abs(curr - targetYear) < Math.abs(prev - targetYear) ? curr : prev
+  )
+}
+
+function eraProgress(targetYear: number): number {
+  if (years.value.length <= 1) return 0
+  const nearest = nearestToTarget(targetYear)
+  const idx = years.value.indexOf(nearest)
+  return idx / (years.value.length - 1)
+}
+
+function jumpToEra(targetYear: number) {
+  if (years.value.length === 0) return
+  const nearest = nearestToTarget(targetYear)
+  store.goToYear(nearest, nearest > store.currentYear ? 1 : -1)
+}
 </script>
 
 <template>
@@ -73,6 +102,20 @@ function onClick(e: MouseEvent) {
         class="absolute right-0 top-0 w-px bg-cream/25 origin-top transition-[height] duration-[600ms] ease-[cubic-bezier(0.4,0,0.2,1)]"
         :style="{ height: `${progress * 100}%` }"
       />
+
+      <!-- Era markers -->
+      <div
+        v-for="era in eras"
+        :key="era.key"
+        class="absolute right-[3px] flex items-center cursor-pointer group/era"
+        :style="{ top: `calc(${eraProgress(era.targetYear) * 100}% - 1px)` }"
+        @click.stop="jumpToEra(era.targetYear)"
+      >
+        <span class="absolute right-4 font-sans text-[0.5rem] tracking-[0.12em] uppercase text-cream/20 whitespace-nowrap group-hover/era:text-cream/55 transition-colors duration-150 pointer-events-none">
+          {{ t(era.key) }}
+        </span>
+        <div class="w-2 h-px bg-cream/15 group-hover/era:bg-cream/50 transition-colors duration-150" />
+      </div>
 
       <!-- Hover ghost indicator -->
       <Transition name="ghost">
