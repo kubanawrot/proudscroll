@@ -87,7 +87,7 @@ const totalStories = computed(() => store.entries.length)
     <!-- Card stack -->
     <Transition :name="`slide-${yearDirection}`">
       <div
-        v-if="!store.isLoading && store.currentEntry"
+        v-if="store.currentEntry"
         :key="store.currentYear"
         class="absolute inset-0"
       >
