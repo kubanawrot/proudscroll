@@ -65,10 +65,17 @@ onMounted(async () => {
     setTimeout(attach, 0)
   }
   document.addEventListener("wheel", dismissLanding, {once: true, passive: true})
-  document.addEventListener("touchstart", () => {
-    showLanding.value = false
-    document.addEventListener("touchend", () => setTimeout(attach, 0), {once: true, passive: true})
-  }, {once: true, passive: true})
+  document.addEventListener(
+    "touchstart",
+    () => {
+      showLanding.value = false
+      document.addEventListener("touchend", () => setTimeout(attach, 0), {
+        once: true,
+        passive: true
+      })
+    },
+    {once: true, passive: true}
+  )
 })
 
 onUnmounted(() => {
@@ -284,7 +291,7 @@ function storyDotClick(dotIndex: number) {
       <!-- Surprise me button -->
       <button
         v-if="!showLanding"
-        class="font-sans text-cream bg-transparent border border-cream/[0.3] rounded-full p-2.5 lg:p-3 2xl:p-4 cursor-pointer transition-[color,border-color,background] duration-200 hover:text-cream hover:border-cream/50 hover:bg-cream/10"
+        class="font-sans text-cream/80 bg-black/60 border-cream/50 border rounded-full p-2.5 lg:p-3 2xl:p-4 cursor-pointer transition-[color,border-color,background] duration-200 hover:text-cream hover:border-cream/80 hover:bg-black/70"
         :aria-label="t('surprise')"
         :title="t('surprise')"
         @click="surpriseMe"
@@ -314,7 +321,7 @@ function storyDotClick(dotIndex: number) {
 
       <!-- Language toggle -->
       <button
-        class="font-sans text-sm lg:text-base 2xl:text-lg font-medium tracking-[0.1em] uppercase text-cream/60 bg-transparent border border-cream/[0.3] rounded-full px-3.5 lg:px-5 2xl:px-6 py-2 lg:py-2.5 2xl:py-3 cursor-pointer transition-[color,border-color,background] duration-200 hover:text-cream hover:border-cream/50 hover:bg-cream/10"
+        class="font-sans text-sm lg:text-base 2xl:text-lg font-medium tracking-[0.1em] uppercase text-cream/80 bg-black/60 border-cream/50 border rounded-full px-3.5 lg:px-5 2xl:px-6 py-2 lg:py-2.5 2xl:py-3 cursor-pointer transition-[color,border-color,background] duration-200 hover:text-cream hover:border-cream/80 hover:bg-black/70"
         :aria-label="locale === 'en' ? 'Switch to Polish' : 'Switch to English'"
         @click="setLocale(locale === 'en' ? 'pl' : 'en')"
       >
@@ -323,7 +330,7 @@ function storyDotClick(dotIndex: number) {
 
       <!-- Contribute button -->
       <button
-        class="flex items-center gap-2 lg:gap-2.5 xl:gap-3 font-sans text-sm lg:text-base 2xl:text-lg font-normal tracking-[0.05em] text-cream bg-transparent border border-cream/[0.3] rounded-full px-3 lg:px-5 2xl:px-6 py-2.5 lg:py-2.5 2xl:py-3 cursor-pointer transition-[color,border-color,background] duration-200 hover:text-cream hover:border-cream/50 hover:bg-cream/10"
+        class="flex items-center gap-2 lg:gap-2.5 xl:gap-3 font-sans text-sm lg:text-base 2xl:text-lg font-normal tracking-[0.05em] text-cream/80 bg-black/60 border-cream/50 border rounded-full px-3 lg:px-5 2xl:px-6 py-2.5 lg:py-2.5 2xl:py-3 cursor-pointer transition-[color,border-color,background] duration-200 hover:text-cream hover:border-cream/80 hover:bg-black/70"
         aria-label="Submit a story"
         @click="submitOpen = true"
       >

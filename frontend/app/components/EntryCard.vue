@@ -10,8 +10,8 @@ const emit = defineEmits<{
   openDetail: []
 }>()
 
-const { t } = useI18n()
-const { localize } = useEntryLocale()
+const {t} = useI18n()
+const {localize} = useEntryLocale()
 
 const localizedEntry = computed(() => localize(props.entry))
 
@@ -30,7 +30,6 @@ const formattedYear = computed(() => {
   const y = props.entry.year
   return y < 0 ? `${Math.abs(y)} BC` : `${y} AD`
 })
-
 </script>
 
 <template>
@@ -114,10 +113,10 @@ const formattedYear = computed(() => {
 
         <!-- Read more button -->
         <button
-          class="flex items-center gap-2 lg:gap-2.5 xl:gap-3 font-sans text-sm lg:text-base 2xl:text-lg font-normal text-cream bg-transparent border border-cream/50 rounded-full pl-5 lg:pl-6 2xl:pl-7 pr-4 lg:pr-5 2xl:pr-6 py-2 lg:py-2.5 2xl:py-3 cursor-pointer tracking-[0.02em] transition-[background-color,border-color] duration-200 hover:bg-cream/[0.08] hover:border-cream/70"
+          class="flex items-center gap-2 lg:gap-2.5 xl:gap-3 font-sans text-sm lg:text-base 2xl:text-lg font-normal border text-cream/80 bg-black/60 border-cream/50 rounded-full pl-5 lg:pl-6 2xl:pl-7 pr-4 lg:pr-5 2xl:pr-6 py-2 lg:py-2.5 2xl:py-3 cursor-pointer tracking-[0.02em] transition-[background-color,border-color] duration-200 hover:text-cream hover:border-cream/80 hover:bg-black/70"
           @click="emit('openDetail')"
         >
-          <span class="-translate-y-px">{{ t('read_more') }}</span>
+          <span class="-translate-y-px">{{ t("read_more") }}</span>
 
           <svg
             class="w-5 2xl:w-6 h-5 2xl:h-6"
